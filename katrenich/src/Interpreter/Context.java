@@ -8,7 +8,7 @@ package Interpreter;
  */
 public class Context {
 	public Expression evaluate(String data){
-		// Перевожу рядок в нижній регістр та видаляю зайві пробіли в заданому виразі
+		// Перевожу рядок в нижній регістр та видаляю зайві пробіли
 		data = data.toLowerCase();
 		data = data.replaceAll(" ", "");
 
@@ -16,9 +16,13 @@ public class Context {
 	}
 
 	private Expression evaluate1(String data, int from, int to) {
+		System.out.println(data);
 		int pos = from;
 		if(data.charAt(from) == '('){
-			while (data.charAt(pos)!=')'){
+			while (data.charAt(pos)!= ')'){
+				if(data.charAt(pos) == '('){
+					return evaluate1(data, pos + 1, data.indexOf(')', pos));
+				}
 				pos++;
 			}
 			return evaluate1(data, from + 1, pos);
