@@ -7,14 +7,23 @@ package Interpreter;
  * 3) За допомогою рекурсії кожен підвираз рахується окремо та підставляєтья як операнда.
  */
 public class Context {
-	public Expression evaluation(String data){
-		// Перевожу рядок в нижній регістр та встановлюю поля для початку перебору символів
+	public Expression evaluate(String data){
+		// Перевожу рядок в нижній регістр та видаляю зайві пробіли в заданому виразі
 		data = data.toLowerCase();
-		int from = 0;
-		int to = data.length() - 1;
+		data = data.replaceAll(" ", "");
 
-		if(data.charAt(from) >= 'a' && data.charAt(to) <= 'z') {
+		return evaluate1(data, 0, data.length());
+	}
 
+	private Expression evaluate1(String data, int from, int to) {
+		int pos = from;
+		if(data.charAt(from) == '('){
+			while (data.charAt(pos)!=')'){
+				pos++;
+			}
+			return evaluate1(data, from + 1, pos);
+		} else {
+			System.out.println(data.substring(from, to));
 		}
 		return null;
 	}
