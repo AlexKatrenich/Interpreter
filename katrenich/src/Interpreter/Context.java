@@ -12,23 +12,27 @@ public class Context {
 		data = data.toLowerCase();
 		data = data.replaceAll(" ", "");
 
-		return evaluate1(data, 0, data.length());
+		return evaluate1(data);
 	}
 
-	private Expression evaluate1(String data, int from, int to) {
-		System.out.println(data);
-		int pos = from;
-		if(data.charAt(from) == '('){
-			while (data.charAt(pos)!= ')'){
-				if(data.charAt(pos) == '('){
-					return evaluate1(data, pos + 1, data.indexOf(')', pos));
+	private Expression evaluate1(String data) {
+		int pos = data.length() - 1;
+		while (pos > 0){
+			if(Character.isDigit(data.charAt(pos))){
+				pos--;
+			} else {
+				Expression left = evaluate1(data.substring(0, pos));
+				Expression right = new NumberExpression(Integer.valueOf(data.substring(pos+1, data.length())));
+				char operator = data.charAt(pos);
+				switch (operator){
+					case '-' : return new MinusExpression(left, right);
+					case '+' : return new PlusExpression(left, right);
+					case '*' : return new MultiplicExpression(left, right);
+					case '/' : return new DivisionExpression(left, right);
 				}
-				pos++;
 			}
-			return evaluate1(data, from + 1, pos);
-		} else {
-			System.out.println(data.substring(from, to));
 		}
-		return null;
+		int result = Integer.valueOf(data);
+		return new NumberExpression(result);
 	}
 }
