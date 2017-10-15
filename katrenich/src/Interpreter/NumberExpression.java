@@ -13,4 +13,5 @@ public class NumberExpression implements Expression {
 	public int interpret() {
 		return number;
 	}
+
 }
