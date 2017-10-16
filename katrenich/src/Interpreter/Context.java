@@ -1,54 +1,52 @@
 package Interpreter;
 
 /**
- * В класі описується логіка роботи додатку.
- * 1) Заданий рядок переглядається з ліва на право.
- * 2) Кожна дія обраховується в окремому виразі.
- * 3) За допомогою рекурсії кожен підвираз рахується окремо та підставляєтья як операнда.
+ * В класі побудована логіка роботи інтерпретатора для обчислення математичних виразів.
+ * Логіка роботи Інтерпретатора побудована на 2-х методах публічному evaluate та приватному evaluate1
+ *
  */
 public class Context {
 
-	public Expression evaluate(String data) throws NumberFormatException{
-		// Рядок переводиться в нижній регістр та видаляються зайві пробіли
+	// метод переводить всі літери рядка в нижній регістр, прибирає всі пробіли в рядку та викликає приватний метод evaluate1
+	public static Expression evaluate(String data) throws NumberFormatException{
 		data = data.toLowerCase();
 		data = data.replaceAll(" ", "");
 
-		// викликається приватний метод для розрахунку виразу
-			return evaluation1(data);
+		return evaluate1(data);
 
 	}
 
-	private Expression evaluation1(String data) throws NumberFormatException{
-		// ініціалізація змінних для розрахунку меж символів в рядку
+	// в методі проводиться безпосередній перебір елементів виразу(рекурсією) та його розрахунок
+	private static Expression evaluate1(String data) throws NumberFormatException{
+		// межі розрахунку виразу
 		int from = 0;
 		int to = data.length() - 1;
 
-		/* при знаходженні в рядку символвів розрахунку квадратного кореня, в рядку обрізаються 5 - символів з початку
-		 * та 1 символ з кінця. Потім шукається рішення Виразу, що знаходився в дужках кореня.
-		 *  Далі розраховується корінь від отриманого числа, приводиться до int та обгортається в Вираз числа.
+		/* Перевірка на обчислення квадратного кореню рівняння та відповідно обчислення.
 		 */
 		if(data.contains("sqrt(")){
-			return new NumberExpression((int) Math.sqrt(evaluation1(data.substring(5, data.length() - 1)).interpret()));
+			return new NumberExpression((int) Math.sqrt(evaluate1(data.substring(5, data.length() - 1)).interpret()));
 		}
 
-		// розроблено перебір та розрахунок виразів в дужках
+		// розбір підвиразів в дужках
 		if (data.charAt(from) == '(') {
 			if (data.charAt(to) == ')') {
-				return evaluation1(data.substring(from + 1, to));
+				return evaluate1(data.substring(from + 1, to));
 			} else {
+				// якщо у виразі є одна пара вкладених дужок, то повертається обрахований вираз в цих дужках
 				int pos = to;
 				while (data.charAt(pos) != ')') {
 					pos--;
 				}
-				return evaluation1(String.valueOf(evaluation1(data.substring(from + 1, pos)).interpret()) + data.substring(pos + 1, to + 1));
+				return evaluate1(String.valueOf(evaluate1(data.substring(from + 1, pos)).interpret()) + data.substring(pos + 1, to + 1));
 			}
 		} else {
-			int pos = data.length() - 1;
-			while (pos > 0){
+			int pos = from;
+			while (pos < to){
 				if(Character.isDigit(data.charAt(pos))){
-					pos--;
+					pos++;
 				} else {
-					Expression left = evaluation1(data.substring(0, pos));
+					Expression left = evaluate1(data.substring(0, pos));
 					Expression right = new NumberExpression(Integer.valueOf(data.substring(pos+1, data.length())));
 					char operator = data.charAt(pos);
 					switch (operator){

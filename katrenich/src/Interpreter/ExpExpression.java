@@ -1,7 +1,7 @@
 package Interpreter;
 
 /**
- * Created by Alex on 15.10.2017.
+ * Клас описує вираз піднесення лівої операнди в степінь що характеризує права операнда
  */
 public class ExpExpression implements Expression {
 	Expression leftOperand;

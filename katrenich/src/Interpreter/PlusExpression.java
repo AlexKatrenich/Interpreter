@@ -1,7 +1,7 @@
 package Interpreter;
 
 /**
- * В класі описується додавання операнд
+ * В класі описується додавання операнд. Не термінальний вираз.
  */
 
 public class PlusExpression implements Expression {
