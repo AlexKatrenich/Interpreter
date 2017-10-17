@@ -41,10 +41,11 @@ public class Context {
 				return evaluate1(String.valueOf(evaluate1(data.substring(from + 1, pos)).interpret()) + data.substring(pos + 1, to + 1));
 			}
 		} else {
-			int pos = from;
-			while (pos < to){
+			//перебір простої частини виразу, права операнда - це число, ліва - це розрахований вираз лівої частини виразу
+			int pos = to;
+			while (pos > from){
 				if(Character.isDigit(data.charAt(pos))){
-					pos++;
+					pos--;
 				} else {
 					Expression left = evaluate1(data.substring(0, pos));
 					Expression right = new NumberExpression(Integer.valueOf(data.substring(pos+1, data.length())));
