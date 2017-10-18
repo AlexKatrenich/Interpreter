@@ -1,5 +1,7 @@
 package Interpreter;
 
+import Interpreter.Exceptions.NotSupportedFormatException;
+
 /**
  * В класі побудована логіка роботи інтерпретатора для обчислення математичних виразів.
  * Логіка роботи Інтерпретатора побудована на 2-х методах публічному evaluate та приватному evaluate1
@@ -25,20 +27,33 @@ public class Context {
 		/* Перевірка на обчислення квадратного кореню рівняння та відповідно обчислення.
 		 */
 		if(data.contains("sqrt(")){
-			return new NumberExpression((int) Math.sqrt(evaluate1(data.substring(5, data.length() - 1)).interpret()));
+			int pos = from;
+			while (data.charAt(pos) != ')') {
+				pos++;
+			}
+			data = new NumberExpression((int) Math.sqrt(evaluate1(data.substring(5, pos)).interpret())).interpret()
+					+ data.substring(pos + 1, data.length());
+			return evaluate(data);
 		}
 
 		// розбір підвиразів в дужках
 		if (data.charAt(from) == '(') {
-			if (data.charAt(to) == ')') {
+			if (data.charAt(to) == ')'){
 				return evaluate1(data.substring(from + 1, to));
-			} else {
+			}
+			else {
 				// якщо у виразі є одна пара вкладених дужок, то повертається обрахований вираз в цих дужках
 				int pos = to;
 				while (data.charAt(pos) != ')') {
 					pos--;
 				}
-				return evaluate1(String.valueOf(evaluate1(data.substring(from + 1, pos)).interpret()) + data.substring(pos + 1, to + 1));
+				try{
+					return evaluate1(String.valueOf(evaluate1(data.substring(from + 1, pos)).interpret())
+							+ data.substring(pos + 1, to + 1));
+				} catch (NumberFormatException ex){
+					throw new NotSupportedFormatException(data);
+				}
+
 			}
 		} else {
 			//перебір простої частини виразу, права операнда - це число, ліва - це розрахований вираз лівої частини виразу
@@ -47,8 +62,14 @@ public class Context {
 				if(Character.isDigit(data.charAt(pos))){
 					pos--;
 				} else {
-					Expression left = evaluate1(data.substring(0, pos));
-					Expression right = new NumberExpression(Integer.valueOf(data.substring(pos+1, data.length())));
+					Expression left;
+					Expression right;
+					try{
+						left = evaluate1(data.substring(0, pos));
+						right = new NumberExpression(Integer.valueOf(data.substring(pos+1, data.length())));
+					} catch (NumberFormatException ex){
+						throw new NotSupportedFormatException(data.substring(0, data.length()));
+					}
 					char operator = data.charAt(pos);
 					switch (operator){
 						case '-' : return new MinusExpression(left, right);
